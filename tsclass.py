@@ -3,6 +3,18 @@
 from tsconst import *
 import pygame
 
+class MobGroup(pygame.sprite.Group):
+    def __init__(self):
+        super(MobGroup,self).__init__()
+
+    def slow_down(self):
+        for sprite in self.sprites():
+            sprite.slow = True
+
+    def speed_up(self):
+        for sprite in self.sprites():
+            sprite.slow = False
+
 class Mob(pygame.sprite.DirtySprite):
     """Base class for all mobile objects in time-shooter."""
     defspeed = 0
@@ -53,7 +65,26 @@ class Ship(Mob):
         self.color = WHITE
         self.defspeed = 8
         self.sketch()
-        
+
+    def check_controls(self,keystate):
+        """Alters velocity attributes according to keypresses.
+
+        keystate should be the list returned by
+        pygame.key.get_pressed()."""
+
+        if keystate[pygame.K_UP] or keystate[pygame.K_w]:
+            self.yvel = self.defspeed
+        elif keystate[pygame.K_DOWN] or keystate[pygame.K_s]:
+            self.yvel = self.defspeed * -1
+        else:
+            self.yvel = 0
+
+        if keystate[pygame.K_LEFT] or keystate[pygame.K_a]:
+            self.xvel = self.defspeed * -1
+        elif keystate[pygame.K_RIGHT] or keystate[pygame.K_d]:
+            self.xvel = self.defspeed
+        else:
+            self.xvel = 0
 
 class Enemy(Mob):
     """Base class for all enemies."""
@@ -65,6 +96,11 @@ class Enemy(Mob):
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
+        elif self.behavior == "straightdown":
+            pass
+        elif self.behavior == "straightup":
+            pass
+        # etcetera
 
 class Bullet(Mob):
     """Base class for all bullets."""

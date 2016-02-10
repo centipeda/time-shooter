@@ -26,8 +26,7 @@ DEFBULSPEED = 10
 
 # Game engine constants.
 FPS = 60
-
-SLOWFACTOR = 5
+SLOWFACTOR = 3
 
 # Creates random colors.
 def random_color():

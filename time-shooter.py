@@ -28,7 +28,7 @@ def main():
     SCREEN.fill(BGCOLOR)
 
     # Group for holding mobs
-    allMobs = pygame.sprite.Group()
+    allMobs = MobGroup()
     # ship starting position
     playerShip = Ship((WINWIDTH / 2),450)
     playerShip.add(allMobs)
@@ -40,9 +40,20 @@ def main():
         # Handling for events from the event queue
         for event in pygame.event.get():
             if (event.type == pygame.QUIT) or \
-               (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+               (event.type == pygame.KEYDOWN and \
+                    event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 sys.exit()
+
+        # Slow down time
+        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
+            allMobs.slow_down()
+        else:
+            allMobs.speed_up()
+            
+
+        # Ship controls
+        playerShip.check_controls(keystate)
 
         # Dirty rect animation
         for mob in allMobs.sprites():
