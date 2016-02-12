@@ -80,10 +80,12 @@ class Ship(Mob):
         self.width = 30
         self.height = 40
         self.color = WHITE
-        self.sketch()
         self.defspeed = 8
-        self.shootdelay = 50
-        self.ticks = pygame.time.get_ticks()
+        self.sketch()
+
+    def move(self):
+        self.xpos += self.xvel
+        self.ypos += self.yvel * -1
 
     def check_controls(self,keystate,screen):
         """Alters velocity attributes according to keypresses.
@@ -109,50 +111,23 @@ class Ship(Mob):
         else:
             self.xvel = 0
 
-    def check_weapons(self,keystate):
-        if keystate[pygame.K_SPACE]:
-            return self.fire_bullet()
-
-    def fire_bullet(self):
-        now = pygame.time.get_ticks()
-        if now - self.ticks > self.shootdelay:
-            self.ticks = pygame.time.get_ticks()
-            fired = Bullet(self.rect.center[0],
-                           self.rect.center[1] + 10)
-            fired.fire()
-            return fired
-
-
 class Enemy(Mob):
     """Base class for all enemies."""
     def __init__(self,behavior="stop"):
-        super(Enemy,self).__init__(xpos,ypos,xvel=0,yvel=0)
+        super(Enemy,self).__init__(xpos,ypos,xvel,yvel)
         self.behavior = behavior
-        self.width = 30
-        self.height = 30
-        self.sketch()
 
     def ai_accel(self):
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
         elif self.behavior == "straightdown":
-            self.xvel = 0
-            self.yvel = self.defspeed * -1
+            pass
         elif self.behavior == "straightup":
-            self.xvel = 0
-            self.yvel = self.defspeed
+            pass
         # etcetera
 
 class Bullet(Mob):
     """Base class for all bullets."""
-    def __init__(self,xpos,ypos,xvel=0,yvel=0):
+    def __init__(self):
         super(Bullet,self).__init__(xpos,ypos,xvel,yvel)
-        self.width = 5
-        self.height = 10
-        self.color = WHITE
-        self.defspeed = 10
-        self.sketch()
-
-    def fire(self):
-        self.yvel = self.defspeed

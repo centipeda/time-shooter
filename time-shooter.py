@@ -59,16 +59,11 @@ def main():
             
 
         # Ship controls
-<<<<<<< HEAD
         playerShip.check_controls(keystate,SCREEN.get_rect())
-=======
-        playerShip.check_controls(keystate)
         blasted = playerShip.check_weapons(keystate)
         if blasted is not None:
             blasted.update()
             blasted.add(allMobs)
-
->>>>>>> ef084bdc5173faad0f0032cdc50a82fdf5192f92
 
         # Dirty rect animation
         for mob in allMobs.sprites():
