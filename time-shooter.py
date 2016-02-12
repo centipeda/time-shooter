@@ -27,7 +27,14 @@ def main():
     pygame.display.set_caption('Time-Shooter')
     SCREEN.fill(BGCOLOR)
 
+    # Group for holding mobs
+    allMobs = pygame.sprite.Group()
+    # ship starting position
+    playerShip = Ship((WINWIDTH / 2),450)
+    playerShip.add(allMobs)
+
     while True: # main event loop
+        to_update = []
         keystate = pygame.key.get_pressed()
 
         # Handling for events from the event queue
@@ -37,7 +44,16 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        pygame.display.update()
+        # Dirty rect animation
+        for mob in allMobs.sprites():
+            SCREEN.fill(BGCOLOR,rect=mob.rect)
+            to_update.append(mob.rect)
+        allMobs.update()
+        allMobs.draw(SCREEN)
+        for sprte in allMobs.sprites():
+            to_update.append(mob.rect)
+        pygame.display.update(to_update)
+
         fpsClock.tick(FPS)
 
 if __name__ == '__main__':
