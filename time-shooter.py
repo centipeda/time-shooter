@@ -11,6 +11,7 @@
 # Add splash screen, menu
 
 import sys
+import time
 import pygame
 
 from tsconst import *
@@ -33,6 +34,10 @@ def main():
     playerShip = Ship((WINWIDTH / 2),450)
     playerShip.add(allMobs)
 
+    allMobs.update()
+    allMobs.draw(SCREEN)
+    pygame.display.update()
+
     while True: # main event loop
         to_update = []
         keystate = pygame.key.get_pressed()
@@ -45,7 +50,8 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        # Slow down time
+
+        # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
             allMobs.slow_down()
         else:
@@ -53,19 +59,32 @@ def main():
             
 
         # Ship controls
+<<<<<<< HEAD
         playerShip.check_controls(keystate,SCREEN.get_rect())
+=======
+        playerShip.check_controls(keystate)
+        blasted = playerShip.check_weapons(keystate)
+        if blasted is not None:
+            blasted.update()
+            blasted.add(allMobs)
+
+>>>>>>> ef084bdc5173faad0f0032cdc50a82fdf5192f92
 
         # Dirty rect animation
         for mob in allMobs.sprites():
+            if not mob.rect.colliderect(SCREEN.get_rect()):
+                mob.kill()
             SCREEN.fill(BGCOLOR,rect=mob.rect)
             to_update.append(mob.rect)
         allMobs.update()
         allMobs.draw(SCREEN)
         for sprte in allMobs.sprites():
             to_update.append(mob.rect)
+
         pygame.display.update(to_update)
 
         fpsClock.tick(FPS)
+
 
 if __name__ == '__main__':
     main()
