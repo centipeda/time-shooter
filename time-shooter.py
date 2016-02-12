@@ -53,7 +53,7 @@ def main():
             
 
         # Ship controls
-        playerShip.check_controls(keystate)
+        playerShip.check_controls(keystate,SCREEN.get_rect())
 
         # Dirty rect animation
         for mob in allMobs.sprites():

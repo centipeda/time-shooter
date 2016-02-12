@@ -54,7 +54,24 @@ class Mob(pygame.sprite.DirtySprite):
         # image attribute of sprite.
         self.image = pygame.Surface((self.width,self.height))
         self.image.fill(self.color)
-        
+
+    def in_bounds(self,area,bound):
+        """Checks if Mob is inside area (Rect)"""
+        if bound == "all":
+            return self.rect.colliderect(area)
+        elif bound == "left":
+            if self.rect.left > area.left:
+                return True
+        elif bound == "right":
+            if self.rect.right < area.right:
+                return True
+        elif bound == "top":
+            if self.rect.top > area.top:
+                return True
+        elif bound == "bottom":
+            if self.rect.bottom < area.bottom:
+                return True
+
             
 class Ship(Mob):
     """Class for the player ship."""
@@ -66,22 +83,26 @@ class Ship(Mob):
         self.defspeed = 8
         self.sketch()
 
-    def check_controls(self,keystate):
+    def check_controls(self,keystate,screen):
         """Alters velocity attributes according to keypresses.
 
         keystate should be the list returned by
         pygame.key.get_pressed()."""
 
-        if keystate[pygame.K_UP] or keystate[pygame.K_w]:
+        if (keystate[pygame.K_UP] or keystate[pygame.K_w]) and \
+           (self.in_bounds(screen,"top")):
             self.yvel = self.defspeed
-        elif keystate[pygame.K_DOWN] or keystate[pygame.K_s]:
+        elif (keystate[pygame.K_DOWN] or keystate[pygame.K_s]) and \
+             (self.in_bounds(screen,"bottom")):
             self.yvel = self.defspeed * -1
         else:
             self.yvel = 0
 
-        if keystate[pygame.K_LEFT] or keystate[pygame.K_a]:
+        if (keystate[pygame.K_LEFT] or keystate[pygame.K_a]) and \
+           (self.in_bounds(screen,"left")):
             self.xvel = self.defspeed * -1
-        elif keystate[pygame.K_RIGHT] or keystate[pygame.K_d]:
+        elif (keystate[pygame.K_RIGHT] or keystate[pygame.K_d]) \
+             and (self.in_bounds(screen,"right")):
             self.xvel = self.defspeed
         else:
             self.xvel = 0
