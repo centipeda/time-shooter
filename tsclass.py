@@ -54,7 +54,24 @@ class Mob(pygame.sprite.DirtySprite):
         # image attribute of sprite.
         self.image = pygame.Surface((self.width,self.height))
         self.image.fill(self.color)
-        
+
+    def in_bounds(self,area,bound):
+        """Checks if Mob is inside area (Rect)"""
+        if bound == "all":
+            return self.rect.colliderect(area)
+        elif bound == "left":
+            if self.rect.left > area.left:
+                return True
+        elif bound == "right":
+            if self.rect.right < area.right:
+                return True
+        elif bound == "top":
+            if self.rect.top > area.top:
+                return True
+        elif bound == "bottom":
+            if self.rect.bottom < area.bottom:
+                return True
+
             
 class Ship(Mob):
     """Class for the player ship."""
@@ -64,63 +81,68 @@ class Ship(Mob):
         self.height = 40
         self.color = WHITE
         self.sketch()
-        self.defspeed = 8
-        self.shootdelay = 50
+        self.defspeed = 5
+        self.shootdelay = 100
         self.ticks = pygame.time.get_ticks()
 
-    def check_controls(self,keystate):
+
+    def move(self):
+        self.xpos += self.xvel
+        self.ypos += self.yvel * -1
+
+    def check_controls(self,keystate,screen):
         """Alters velocity attributes according to keypresses.
 
         keystate should be the list returned by
         pygame.key.get_pressed()."""
 
-        if keystate[pygame.K_UP] or keystate[pygame.K_w]:
+        if (keystate[pygame.K_UP] or keystate[pygame.K_w]) and \
+           (self.in_bounds(screen,"top")):
             self.yvel = self.defspeed
-        elif keystate[pygame.K_DOWN] or keystate[pygame.K_s]:
+        elif (keystate[pygame.K_DOWN] or keystate[pygame.K_s]) and \
+             (self.in_bounds(screen,"bottom")):
             self.yvel = self.defspeed * -1
         else:
             self.yvel = 0
 
-        if keystate[pygame.K_LEFT] or keystate[pygame.K_a]:
+        if (keystate[pygame.K_LEFT] or keystate[pygame.K_a]) and \
+           (self.in_bounds(screen,"left")):
             self.xvel = self.defspeed * -1
-        elif keystate[pygame.K_RIGHT] or keystate[pygame.K_d]:
+        elif (keystate[pygame.K_RIGHT] or keystate[pygame.K_d]) \
+             and (self.in_bounds(screen,"right")):
             self.xvel = self.defspeed
         else:
             self.xvel = 0
 
     def check_weapons(self,keystate):
         if keystate[pygame.K_SPACE]:
-            return self.fire_bullet()
+            fire = self.fire_bullet()
+            return fire # Heh.
 
     def fire_bullet(self):
         now = pygame.time.get_ticks()
         if now - self.ticks > self.shootdelay:
             self.ticks = pygame.time.get_ticks()
-            fired = Bullet(self.rect.center[0],
-                           self.rect.center[1] + 10)
-            fired.fire()
-            return fired
-
+            fire = Bullet(self.rect.center[0],
+                          self.rect.center[1])
+            fire.yvel = fire.defspeed
+            return fire
+        
 
 class Enemy(Mob):
     """Base class for all enemies."""
     def __init__(self,behavior="stop"):
-        super(Enemy,self).__init__(xpos,ypos,xvel=0,yvel=0)
+        super(Enemy,self).__init__(xpos,ypos,xvel,yvel)
         self.behavior = behavior
-        self.width = 30
-        self.height = 30
-        self.sketch()
 
     def ai_accel(self):
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
         elif self.behavior == "straightdown":
-            self.xvel = 0
-            self.yvel = self.defspeed * -1
+            pass
         elif self.behavior == "straightup":
-            self.xvel = 0
-            self.yvel = self.defspeed
+            pass
         # etcetera
 
 class Bullet(Mob):
@@ -130,8 +152,8 @@ class Bullet(Mob):
         self.width = 5
         self.height = 10
         self.color = WHITE
-        self.defspeed = 10
         self.sketch()
-
+        self.defspeed = 8
+                
     def fire(self):
         self.yvel = self.defspeed

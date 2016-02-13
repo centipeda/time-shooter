@@ -54,12 +54,13 @@ def main():
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
             allMobs.slow_down()
+            # pass
         else:
             allMobs.speed_up()
             
 
         # Ship controls
-        playerShip.check_controls(keystate)
+        playerShip.check_controls(keystate,SCREEN.get_rect())
         blasted = playerShip.check_weapons(keystate)
         if blasted is not None:
             blasted.update()
@@ -74,7 +75,7 @@ def main():
             to_update.append(mob.rect)
         allMobs.update()
         allMobs.draw(SCREEN)
-        for sprte in allMobs.sprites():
+        for mob in allMobs.sprites():
             to_update.append(mob.rect)
 
         pygame.display.update(to_update)
