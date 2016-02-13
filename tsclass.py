@@ -129,7 +129,7 @@ class Ship(Mob):
         
 class Enemy(Mob):
     """Base class for all enemies."""
-    def __init__(self,behavior="stop"):
+    def __init__(self,xpos,ypos,xvel=0,yvel=0,behavior="stop"):
         super(Enemy,self).__init__(xpos,ypos,xvel,yvel)
         self.behavior = behavior
         self.width = 30
@@ -137,10 +137,7 @@ class Enemy(Mob):
         self.color = WHITE
         self.sketch()
 
-    def ai_accel(self,script):
-        if script != self.behavior:
-            self.behavior = script
-
+    def ai_accel(self):
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
@@ -159,6 +156,11 @@ class Enemy(Mob):
         elif self.behavior == "straightright":
             self.xvel = self.defspeed
             self.yvel = 0
+        elif self.behavior == "random":
+            margin = 3
+            self.xvel = randint(margin * -1,margin)
+            self.yvel = randint(margin * -1,margin)
+
 
 class Bullet(Mob):
     """Base class for all bullets."""
@@ -178,3 +180,4 @@ class SquareEnemy(Enemy):
         super(SquareEnemy,self).__init__(xpos,ypos,xvel,yvel)
         self.color = GREEN
         self.sketch()
+        self.defspeed = 3

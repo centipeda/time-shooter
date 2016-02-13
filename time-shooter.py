@@ -28,12 +28,18 @@ def main():
     pygame.display.set_caption('Time-Shooter')
     SCREEN.fill(BGCOLOR)
 
-    # Group for holding mobs
+    # Groups for holding mobs
     allMobs = MobGroup()
+    enemies = MobGroup()
+    bullets = MobGroup()
+
     # ship starting position
     playerShip = Ship((WINWIDTH / 2),450)
     playerShip.add(allMobs)
 
+    # Testing
+
+    # Initializes mobs
     allMobs.update()
     allMobs.draw(SCREEN)
     pygame.display.update()
@@ -64,10 +70,35 @@ def main():
         blasted = playerShip.check_weapons(keystate)
         if blasted is not None:
             blasted.update()
+            blasted.add(bullets)
             blasted.add(allMobs)
+
+        if keystate[pygame.K_q]:
+            spawn = SquareEnemy(300,300)
+            spawn.behavior = "random"
+            spawn.update()
+            spawn.add(allMobs)
+            spawn.add(enemies)
+
+
+        # Enemy actions
+        for enemy in enemies:
+            enemy.ai_accel()
+
+
+        # Collision detection
+        for enemy in enemies:
+            for bullet in bullets:
+                if enemy.rect.colliderect(bullet.rect):
+                    to_update.append(SCREEN.fill(BGCOLOR,enemy.rect))
+                    to_update.append(SCREEN.fill(BGCOLOR,bullet.rect))
+                    enemy.kill()
+                    bullet.kill()
+
 
         # Dirty rect animation
         for mob in allMobs.sprites():
+            # kills mob if offscreen
             if not mob.rect.colliderect(SCREEN.get_rect()):
                 mob.kill()
             SCREEN.fill(BGCOLOR,rect=mob.rect)
