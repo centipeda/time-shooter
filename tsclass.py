@@ -125,7 +125,7 @@ class Ship(Mob):
             fire = Bullet(self.rect.center[0],
                           self.rect.center[1])
             fire.yvel = fire.defspeed
-            return fire
+            return fire # Yep, again.
         
 class Enemy(Mob):
     """Base class for all enemies."""
@@ -136,6 +136,7 @@ class Enemy(Mob):
         self.height = 30
         self.color = WHITE
         self.sketch()
+        self.target = None
 
     def ai_accel(self):
         if self.behavior == "stop":
@@ -160,6 +161,16 @@ class Enemy(Mob):
             margin = 3
             self.xvel = randint(margin * -1,margin)
             self.yvel = randint(margin * -1,margin)
+        elif self.behavior == "home":
+            distx = self.target[0] - self.rect.center[0]
+            disty = self.target[1] - self.rect.center[1]
+            if distx == 0:
+                distx += 1
+            if disty == 0:
+                disty += 1
+            self.xvel = (distx / self.defspeed) / 20
+            self.yvel = (( -1 * disty) / self.defspeed) / 20
+            print self.xvel,self.yvel
 
 
 class Bullet(Mob):
