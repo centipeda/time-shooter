@@ -34,8 +34,6 @@ def main():
     playerShip = Ship((WINWIDTH / 2),450)
     playerShip.add(allMobs)
 
-    # Testing
-
     # Initializes mobs
     allMobs.update()
     allMobs.draw(SCREEN)
@@ -44,6 +42,7 @@ def main():
     while True: # main event loop
         to_update = []
         keystate = pygame.key.get_pressed()
+
 
         # Handling for events from the event queue
         for event in pygame.event.get():
@@ -76,7 +75,7 @@ def main():
             spawn = SquareEnemy(randint(0,WINWIDTH),20)
             spawn.color = random_color()
             spawn.sketch()
-            spawn.behavior = "straightleft"
+            spawn.behavior = "stop"
             spawn.target = playerShip.rect.center
             spawn.update()
             spawn.add(allMobs)
@@ -90,12 +89,6 @@ def main():
             # Retargets player if Enemy is set to homing.
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
-            ## testing ## - bounces enemies between walls.
-            if not enemy.in_bounds(WINAREA,"left"):
-                enemy.behavior = "straightright"
-            elif not enemy.in_bounds(WINAREA,"right"):
-                enemy.behavior = "straightleft"
-            ## testing ##
             # Periodically fires bullets.
             checkwep = enemy.fire_bullet()
             if checkwep is not None:
@@ -117,11 +110,7 @@ def main():
                     break
             if bullet.enemy:
                 if playerShip.rect.colliderect(bullet.rect):
-                    playerShip.color = random_color()
-                    playerShip.sketch()
-                else:
-                    playerShip.color = WHITE
-                    playerShip.sketch()
+                    print "Took a hit!"
 
         # Dirty rect animation
         for mob in allMobs.sprites():

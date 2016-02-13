@@ -4,14 +4,17 @@ from tsconst import *
 import pygame
 
 class MobGroup(pygame.sprite.Group):
+    """Meant to hold all mobs in the game."""
     def __init__(self):
         super(MobGroup,self).__init__()
 
     def slow_down(self):
+        """Sets slow value to True for all mobs in group."""
         for sprite in self.sprites():
             sprite.slow = True
 
     def speed_up(self):
+        """Sets slow value to False for all mobs in group."""
         for sprite in self.sprites():
             sprite.slow = False
 
@@ -34,6 +37,8 @@ class Mob(pygame.sprite.DirtySprite):
         self.dirty = 2 # All mobs update
 
     def update(self):
+        """Adjusts coordinates according to move(),
+        then readjusts rect coordinates."""
         self.move()
         self.rect = pygame.Rect((self.xpos,self.ypos,
                                  self.width,self.height))
@@ -50,6 +55,8 @@ class Mob(pygame.sprite.DirtySprite):
             self.ypos += self.yvel * -1
 
     def sketch(self):
+        """Sets image attribute to a Surface so Group.draw()
+        can be called. Also used when recoloring a mob."""
         # Needs to be called during children __init__ to fill
         # image attribute of sprite.
         self.image = pygame.Surface((self.width,self.height))
@@ -86,6 +93,8 @@ class Ship(Mob):
         self.shootdelay = PLAYERBULDELAY
 
     def move(self):
+        """Overriden from Mob to make Ship not slowed down by
+        slow attribute."""
         self.xpos += self.xvel
         self.ypos += self.yvel * -1
 
@@ -114,11 +123,14 @@ class Ship(Mob):
             self.xvel = 0
 
     def check_weapons(self,keystate):
+        """Calls fire_bullet() if space is held."""
         if keystate[pygame.K_SPACE]:
             fire = self.fire_bullet()
             return fire # Heh.
 
     def fire_bullet(self):
+        """Creates a Bullet object traveling upward if delay
+        requirements are met."""
         now = pygame.time.get_ticks()
         if now - self.ticks > self.shootdelay:
             self.ticks = pygame.time.get_ticks()
@@ -138,6 +150,7 @@ class Enemy(Mob):
         self.ticks = pygame.time.get_ticks()
 
     def fire_bullet(self):
+        """Fires bullet, but colors it red."""
         now = pygame.time.get_ticks()
         if now - self.ticks > self.shootdelay:
             self.ticks = pygame.time.get_ticks()
@@ -150,6 +163,8 @@ class Enemy(Mob):
             return fire
 
     def ai_accel(self):
+        """Adjusts velocity attributes according to behavior
+        attributes."""
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
@@ -168,6 +183,12 @@ class Enemy(Mob):
         elif self.behavior == "straightright":
             self.xvel = self.defspeed
             self.yvel = 0
+        elif self.behavior == "diagdl":
+            self.xvel = -1 * self.defspeed
+            self.yvel = -1 * self.defspeed
+        elif self.behavior == "diagdr":
+            self.xvel = self.defspeed
+            self.yvel = -1 * self.defspeed
         elif self.behavior == "random":
             margin = 3
             self.xvel = randint(margin * -1,margin)
