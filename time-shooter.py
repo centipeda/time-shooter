@@ -1,11 +1,8 @@
 """A sh'mup written with Pygame, with a small twist."""
 
 # To-do:
-# Create main window
-# Add player ship, basic controls, weapons
 # Add enemies, basic behavior, weapons
 # Add HUD
-# Add time-slowing functionality
 # Add backgrounds
 # Add sounds, music
 # Add splash screen, menu
@@ -60,7 +57,6 @@ def main():
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
             allMobs.slow_down()
-            # pass
         else:
             allMobs.speed_up()
             
@@ -68,14 +64,16 @@ def main():
         # Ship controls
         playerShip.check_controls(keystate,SCREEN.get_rect())
         blasted = playerShip.check_weapons(keystate)
+        # Fires bullet if space is held
         if blasted is not None:
             blasted.update()
             blasted.add(bullets)
             blasted.add(allMobs)
 
-        # Testing
+
+        # Testing (Spawns enemies if "q" is pressed)
         if keystate[pygame.K_q]:
-            spawn = SquareEnemy(300,300)
+            spawn = SquareEnemy(250,20)
             spawn.color = random_color()
             spawn.sketch()
             spawn.behavior = "home"
@@ -91,17 +89,26 @@ def main():
             enemy.ai_accel()
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
+            checkwep = enemy.fire_bullet()
+            if checkwep is not None:
+                checkwep.update()
+                checkwep.add(allMobs)
+                checkwep.add(bullets)
+            
 
 
         # Collision detection
-        for enemy in enemies:
-            for bullet in bullets:
-                if enemy.rect.colliderect(bullet.rect):
+        for bullet in bullets:
+            for enemy in enemies:
+                if enemy.rect.colliderect(bullet.rect) and not \
+                   bullet.enemy:
                     to_update.append(SCREEN.fill(BGCOLOR,enemy.rect))
                     to_update.append(SCREEN.fill(BGCOLOR,bullet.rect))
                     enemy.kill()
                     bullet.kill()
-
+                    break
+            if bullet.enemy:
+                continue
 
         # Dirty rect animation
         for mob in allMobs.sprites():

@@ -137,6 +137,18 @@ class Enemy(Mob):
         self.color = WHITE
         self.sketch()
         self.target = None
+        self.shootdelay = 400
+        self.ticks = pygame.time.get_ticks()
+
+    def fire_bullet(self):
+        now = pygame.time.get_ticks()
+        if now - self.ticks > self.shootdelay:
+            self.ticks = pygame.time.get_ticks()
+            fire = Bullet(self.rect.center[0],
+                          self.rect.center[1])
+            fire.enemy = True
+            fire.yvel = -1 * fire.defspeed
+            return fire
 
     def ai_accel(self):
         if self.behavior == "stop":
@@ -180,10 +192,8 @@ class Bullet(Mob):
         self.color = WHITE
         self.sketch()
         self.defspeed = 8
-                
-    def fire(self):
-        self.yvel = self.defspeed
-
+        self.enemy = None
+    
 class SquareEnemy(Enemy):
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(SquareEnemy,self).__init__(xpos,ypos,xvel,yvel)
