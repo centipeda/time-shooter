@@ -30,7 +30,7 @@ def main():
     enemies = MobGroup()
     bullets = MobGroup()
 
-    # ship starting position
+    # Ship starting position
     playerShip = Ship((WINWIDTH / 2),450)
     playerShip.add(allMobs)
 
@@ -62,7 +62,7 @@ def main():
             
 
         # Ship controls
-        playerShip.check_controls(keystate,SCREEN.get_rect())
+        playerShip.check_controls(keystate,WINAREA)
         blasted = playerShip.check_weapons(keystate)
         # Fires bullet if space is held
         if blasted is not None:
@@ -73,10 +73,10 @@ def main():
 
         # Testing (Spawns enemies if "q" is pressed)
         if keystate[pygame.K_q]:
-            spawn = SquareEnemy(250,20)
+            spawn = SquareEnemy(randint(0,WINWIDTH),20)
             spawn.color = random_color()
             spawn.sketch()
-            spawn.behavior = "home"
+            spawn.behavior = "straightleft"
             spawn.target = playerShip.rect.center
             spawn.update()
             spawn.add(allMobs)
@@ -87,8 +87,16 @@ def main():
         # Enemy actions
         for enemy in enemies:
             enemy.ai_accel()
+            # Retargets player if Enemy is set to homing.
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
+            ## testing ## - bounces enemies between walls.
+            if not enemy.in_bounds(WINAREA,"left"):
+                enemy.behavior = "straightright"
+            elif not enemy.in_bounds(WINAREA,"right"):
+                enemy.behavior = "straightleft"
+            ## testing ##
+            # Periodically fires bullets.
             checkwep = enemy.fire_bullet()
             if checkwep is not None:
                 checkwep.update()
@@ -108,12 +116,17 @@ def main():
                     bullet.kill()
                     break
             if bullet.enemy:
-                continue
+                if playerShip.rect.colliderect(bullet.rect):
+                    playerShip.color = random_color()
+                    playerShip.sketch()
+                else:
+                    playerShip.color = WHITE
+                    playerShip.sketch()
 
         # Dirty rect animation
         for mob in allMobs.sprites():
             # kills mob if offscreen
-            if not mob.rect.colliderect(SCREEN.get_rect()):
+            if not mob.rect.colliderect(WINAREA):
                 mob.kill()
             SCREEN.fill(BGCOLOR,rect=mob.rect)
             to_update.append(mob.rect)

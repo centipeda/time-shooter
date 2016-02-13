@@ -22,7 +22,7 @@ class Mob(pygame.sprite.DirtySprite):
     height = 0
     width = 0
     rect = None
-    color = WHITE
+    color = None
     slow = False
 
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
@@ -77,13 +77,13 @@ class Ship(Mob):
     """Class for the player ship."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(Ship,self).__init__(xpos,ypos,xvel,yvel)
-        self.width = 30
-        self.height = 40
+        self.width = SHIPWIDTH
+        self.height = SHIPHEIGHT
         self.color = WHITE
         self.sketch()
-        self.defspeed = 8
+        self.defspeed = DEFSHIPSPEED
         self.ticks = pygame.time.get_ticks()
-        self.shootdelay = 50
+        self.shootdelay = PLAYERBULDELAY
 
     def move(self):
         self.xpos += self.xvel
@@ -125,19 +125,16 @@ class Ship(Mob):
             fire = Bullet(self.rect.center[0],
                           self.rect.center[1])
             fire.yvel = fire.defspeed
-            return fire # Yep, again.
+            return fire
         
 class Enemy(Mob):
     """Base class for all enemies."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0,behavior="stop"):
         super(Enemy,self).__init__(xpos,ypos,xvel,yvel)
         self.behavior = behavior
-        self.width = 30
-        self.height = 30
-        self.color = WHITE
-        self.sketch()
+        self.basesize = ENEMYBASESIZE
+        self.shootdelay = ENEMYBULDELAY
         self.target = None
-        self.shootdelay = 400
         self.ticks = pygame.time.get_ticks()
 
     def fire_bullet(self):
@@ -147,7 +144,9 @@ class Enemy(Mob):
             fire = Bullet(self.rect.center[0],
                           self.rect.center[1])
             fire.enemy = True
+            fire.color = ENEMYBULCOLOR
             fire.yvel = -1 * fire.defspeed
+            fire.sketch()
             return fire
 
     def ai_accel(self):
@@ -187,16 +186,18 @@ class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(Bullet,self).__init__(xpos,ypos,xvel,yvel)
-        self.width = 5
-        self.height = 10
-        self.color = WHITE
+        self.width = BULWIDTH
+        self.height = BULHEIGHT
+        self.color = DEFBULCOLOR
         self.sketch()
-        self.defspeed = 8
+        self.defspeed = DEFBULSPEED
         self.enemy = None
     
 class SquareEnemy(Enemy):
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(SquareEnemy,self).__init__(xpos,ypos,xvel,yvel)
         self.color = GREEN
+        self.width = self.basesize
+        self.height = self.basesize
         self.sketch()
         self.defspeed = 3
