@@ -171,7 +171,6 @@ class Enemy(Mob):
             self.xvel = (distx / self.defspeed) / 20
             self.yvel = (( -1 * disty) / self.defspeed) / 20
 
-
 class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
