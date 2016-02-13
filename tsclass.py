@@ -109,9 +109,13 @@ class Enemy(Mob):
         self.behavior = behavior
         self.width = 30
         self.height = 30
+        self.color = WHITE
         self.sketch()
 
-    def ai_accel(self):
+    def ai_accel(self,script=self.behavior):
+        if script != self.behavior:
+            self.behavior = script
+
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
@@ -121,7 +125,12 @@ class Enemy(Mob):
         elif self.behavior == "straightup":
             self.xvel = 0
             self.yvel = self.defspeed
-        # etcetera
+        elif self.behavior == "straightleft":
+            self.xvel = -1 * self.defspeed
+            self.yvel = 0
+        elif self.behavior == "straightright":
+            self.xvel = self.defspeed
+            self.yvel = 0
 
 class Bullet(Mob):
     """Base class for all bullets."""
@@ -135,3 +144,10 @@ class Bullet(Mob):
 
     def fire(self):
         self.yvel = self.defspeed
+
+class SquareEnemy(Enemy):
+    def __init__(self,xpos,ypos,xvel=0,yvel=0):
+        super(SquareEnemy,self).__init__(xpos,ypos,xvel,yvel)
+        self.color = GREEN
+        self.sketch()
+
