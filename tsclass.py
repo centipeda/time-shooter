@@ -170,7 +170,6 @@ class Enemy(Mob):
                 disty += 1
             self.xvel = (distx / self.defspeed) / 20
             self.yvel = (( -1 * disty) / self.defspeed) / 20
-            print self.xvel,self.yvel
 
 
 class Bullet(Mob):
