@@ -111,23 +111,67 @@ class Ship(Mob):
         else:
             self.xvel = 0
 
+    def check_weapons(self,keystate):
+        if keystate[pygame.K_SPACE]:
+            fire = self.fire_bullet()
+            return fire # Heh.
+
+    def fire_bullet(self):
+        now = pygame.time.get_ticks()
+        if now - self.ticks > self.shootdelay:
+            self.ticks = pygame.time.get_ticks()
+            fire = Bullet(self.rect.center[0],
+                          self.rect.center[1])
+            fire.yvel = fire.defspeed
+            return fire
+        
 class Enemy(Mob):
     """Base class for all enemies."""
     def __init__(self,behavior="stop"):
         super(Enemy,self).__init__(xpos,ypos,xvel,yvel)
         self.behavior = behavior
+        self.width = 30
+        self.height = 30
+        self.color = WHITE
+        self.sketch()
+    def ai_accel(self,script=self.behavior):
+        if script != self.behavior:
+            self.behavior = script
 
-    def ai_accel(self):
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
         elif self.behavior == "straightdown":
-            pass
+            self.xvel = 0
+            self.yvel = -1 * self.defspeed
         elif self.behavior == "straightup":
-            pass
-        # etcetera
+            self.xvel = 0
+            self.yvel = self.defspeed
+        elif self.behavior == "straightup":
+            self.xvel = 0
+            self.yvel = self.defspeed
+        elif self.behavior == "straightleft":
+            self.xvel = -1 * self.defspeed
+            self.yvel = 0
+        elif self.behavior == "straightright":
+            self.xvel = self.defspeed
+            self.yvel = 0
 
 class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self):
         super(Bullet,self).__init__(xpos,ypos,xvel,yvel)
+        self.width = 5
+        self.height = 10
+        self.color = WHITE
+        self.sketch()
+        self.defspeed = 8
+                
+    def fire(self):
+        self.yvel = self.defspeed
+
+class SquareEnemy(Enemy):
+    def __init__(self,xpos,ypos,xvel=0,yvel=0):
+        super(SquareEnemy,self).__init__(xpos,ypos,xvel,yvel)
+        self.color = GREEN
+        self.sketch()

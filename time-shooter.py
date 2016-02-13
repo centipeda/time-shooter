@@ -54,6 +54,7 @@ def main():
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
             allMobs.slow_down()
+            # pass
         else:
             allMobs.speed_up()
             
@@ -73,7 +74,7 @@ def main():
             to_update.append(mob.rect)
         allMobs.update()
         allMobs.draw(SCREEN)
-        for sprte in allMobs.sprites():
+        for mob in allMobs.sprites():
             to_update.append(mob.rect)
 
         pygame.display.update(to_update)
