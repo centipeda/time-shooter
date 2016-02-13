@@ -80,8 +80,10 @@ class Ship(Mob):
         self.width = 30
         self.height = 40
         self.color = WHITE
-        self.defspeed = 8
         self.sketch()
+        self.defspeed = 8
+        self.ticks = pygame.time.get_ticks()
+        self.shootdelay = 50
 
     def move(self):
         self.xpos += self.xvel
@@ -134,7 +136,8 @@ class Enemy(Mob):
         self.height = 30
         self.color = WHITE
         self.sketch()
-    def ai_accel(self,script=self.behavior):
+
+    def ai_accel(self,script):
         if script != self.behavior:
             self.behavior = script
 
@@ -159,7 +162,7 @@ class Enemy(Mob):
 
 class Bullet(Mob):
     """Base class for all bullets."""
-    def __init__(self):
+    def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(Bullet,self).__init__(xpos,ypos,xvel,yvel)
         self.width = 5
         self.height = 10
