@@ -73,17 +73,24 @@ def main():
             blasted.add(bullets)
             blasted.add(allMobs)
 
+        # Testing
         if keystate[pygame.K_q]:
             spawn = SquareEnemy(300,300)
-            spawn.behavior = "random"
+            spawn.color = random_color()
+            spawn.sketch()
+            spawn.behavior = "home"
+            spawn.target = playerShip.rect.center
             spawn.update()
             spawn.add(allMobs)
             spawn.add(enemies)
+            one = False
 
 
         # Enemy actions
         for enemy in enemies:
             enemy.ai_accel()
+            if enemy.behavior == "home":
+                enemy.target = playerShip.rect.center
 
 
         # Collision detection
