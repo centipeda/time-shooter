@@ -11,8 +11,10 @@ import sys
 import time
 import pygame
 
+# In-game imports.
 from tsconst import *
-from tsclass import *
+from tsmobs import *
+from tshud import *
 
 def main():
 
@@ -29,6 +31,15 @@ def main():
     allMobs = MobGroup()
     enemies = MobGroup()
     bullets = MobGroup()
+    hudparts = HudElementGroup()
+
+    # set up HUD
+    scoreCounter = ScoreCounter()
+    # healthBar = HealthBar()
+    scoreCounter.add(allMobs)
+    scoreCounter.add(hudparts)
+    # healthBar.add(allMobs)
+    # healthBar.add(hudparts)
 
     # Ship starting position
     playerShip = Ship((WINWIDTH / 2),450)
@@ -52,6 +63,10 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+        # Update HUD elements
+        if keystate[pygame.K_e]:
+            scoreCounter.increment(1)
+
 
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
@@ -72,7 +87,7 @@ def main():
 
         # Testing (Spawns enemies if "q" is pressed)
         if keystate[pygame.K_q]:
-            spawn = SquareEnemy(randint(0,WINWIDTH),20)
+            spawn = SquareEnemy(randint(0,WINWIDTH),20)# Spawns randomly placed enemies along the x-axis.
             spawn.color = random_color()
             spawn.sketch()
             spawn.behavior = "stop"
@@ -103,6 +118,8 @@ def main():
             for enemy in enemies:
                 if enemy.rect.colliderect(bullet.rect) and not \
                    bullet.enemy:
+                    # If bullet is player's and is hitting enemy...
+                    scoreCounter.increment_score(ENEMYKILLSCORE)
                     to_update.append(SCREEN.fill(BGCOLOR,enemy.rect))
                     to_update.append(SCREEN.fill(BGCOLOR,bullet.rect))
                     enemy.kill()
@@ -110,15 +127,19 @@ def main():
                     break
             if bullet.enemy:
                 if playerShip.rect.colliderect(bullet.rect):
-                    print "Took a hit!"
+                    to_update.append(SCREEN.fill(BGCOLOR,playerShip.rect))
+                    playerShip.kill()
+                    break
 
         # Dirty rect animation
         for mob in allMobs.sprites():
             # kills mob if offscreen
             if not mob.rect.colliderect(WINAREA):
                 mob.kill()
+            # Clears screen area where mob used to be
             SCREEN.fill(BGCOLOR,rect=mob.rect)
             to_update.append(mob.rect)
+        # Redraws mob in new location
         allMobs.update()
         allMobs.draw(SCREEN)
         for mob in allMobs.sprites():
@@ -126,7 +147,8 @@ def main():
 
         pygame.display.update(to_update)
 
-        fpsClock.tick(FPS)
+        # Keeps game at steady FPS
+        fpsClock.tick(MAXFPS)
 
 
 if __name__ == '__main__':
