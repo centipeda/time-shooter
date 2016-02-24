@@ -58,12 +58,12 @@ class Mob(pygame.sprite.DirtySprite):
         """Sets image attribute to a Surface so Group.draw()
         can be called. Also used when recoloring a mob."""
         # Needs to be called during children __init__ to fill
-        # image attribute of sprite.
+        # image attribute of sprite for initial Group.draw() call.
         self.image = pygame.Surface((self.width,self.height))
         self.image.fill(self.color)
 
     def in_bounds(self,area,bound):
-        """Checks if Mob is inside area (Rect)"""
+        """Checks if Mob is inside a given area."""
         if bound == "all":
             return self.rect.colliderect(area)
         elif bound == "left":
@@ -164,7 +164,7 @@ class Enemy(Mob):
 
     def ai_accel(self):
         """Adjusts velocity attributes according to behavior
-        attributes."""
+        attributes and default speed values."""
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
@@ -184,25 +184,30 @@ class Enemy(Mob):
             self.xvel = self.defspeed
             self.yvel = 0
         elif self.behavior == "diagdl":
+            # Diagonal, down and to the left at a 45 degree angle.
             self.xvel = -1 * self.defspeed
             self.yvel = -1 * self.defspeed
         elif self.behavior == "diagdr":
+            # Diagonal, down and to the right at a 45 degree angle.
             self.xvel = self.defspeed
             self.yvel = -1 * self.defspeed
         elif self.behavior == "random":
-            margin = 3
+            # Random movement.
+            # note - enemies tend to move down-left
+            # when slow is true for some reason.
+            margin = 3 # Changes how random movement is.
             self.xvel = randint(margin * -1,margin)
             self.yvel = randint(margin * -1,margin)
         elif self.behavior == "home":
+            # Adjusts velocities to aim at a point.
             distx = self.target[0] - self.rect.center[0]
             disty = self.target[1] - self.rect.center[1]
             if distx == 0:
                 distx += 1
             if disty == 0:
                 disty += 1
-            self.xvel = (distx / self.defspeed) / 20
-            self.yvel = (( -1 * disty) / self.defspeed) / 20
-
+            self.xvel = (distx / self.defspeed) / HOMINGFACTOR
+            self.yvel = (( -1 * disty) / self.defspeed) / HOMINGFACTOR
 class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):

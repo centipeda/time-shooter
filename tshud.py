@@ -16,20 +16,41 @@ class HudElement(pygame.sprite.DirtySprite):
         self.xpos = 0
         self.ypos = 0
         self.color = None
+        self.rect = None
+        self.image = None
 
     def update(self):
-        """Sets rect attribute and image attribute of HUD element.
+        """Sets rect attribute of HUD element.
         """
         self.rect = pygame.Rect(self.xpos,self.ypos,
                                 self.width,self.height)
 
 class HealthBar(HudElement):
+    """Health bar, can be decreased and increased."""
     def __init__(self):
         super(HealthBar,self).__init__()
+        self.xpos = HEALTHLOCATION[0]
+        self.ypos = HEALTHLOCATION[1]
         self.width = HEALTHBARWIDTH
         self.height = HEALTHBARHEIGHT
         self.color = HEALTHBARCOLOR
+        self.emptycolor = EMPTYHEALTHCOLOR
         self.health = DEFHEALTH
+
+    def update(self):
+        self.rect = pygame.Rect((self.xpos,self.ypos,
+                                 self.width,self.height))
+        self.image = pygame.Surface((self.width,self.height))
+        self.image.fill(self.color)
+        # Add partial health damage.
+
+    def increment_health(self,increase):
+        """Increases health attribute. For readability."""
+        self.health += increase
+        
+    def decrement_health(self,decrease):
+        """Decreases health attribute. For readability."""
+        self.health -= decrease
 
 class ScoreCounter(HudElement):
     def __init__(self):
@@ -42,6 +63,7 @@ class ScoreCounter(HudElement):
         self.color = SCORECOLOR
 
     def update(self):
+        """Updates text attribute with current score value."""
         updated = self.text.render(str(self.score),False,self.color,BGCOLOR)
         self.image = updated
         self.rect = updated.get_rect()

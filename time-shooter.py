@@ -35,11 +35,11 @@ def main():
 
     # set up HUD
     scoreCounter = ScoreCounter()
-    # healthBar = HealthBar()
+    healthBar = HealthBar()
     scoreCounter.add(allMobs)
     scoreCounter.add(hudparts)
-    # healthBar.add(allMobs)
-    # healthBar.add(hudparts)
+    healthBar.add(allMobs)
+    healthBar.add(hudparts)
 
     # Ship starting position
     playerShip = Ship((WINWIDTH / 2),450)
@@ -105,7 +105,7 @@ def main():
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
             # Periodically fires bullets.
-            checkwep = enemy.fire_bullet()
+            checkwep = None # enemy.fire_bullet()
             if checkwep is not None:
                 checkwep.update()
                 checkwep.add(allMobs)
