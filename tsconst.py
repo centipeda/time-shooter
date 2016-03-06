@@ -16,18 +16,38 @@ GREEN = (0,255,0)
 BGCOLOR = BLACK
 
 # Game sprite constants.
-SHIPH = 30
-SHIPW = 20
-BULH = 10
-BULW = 5
-BULDELAY = 100
+SHIPHEIGHT = 30
+SHIPWIDTH = 20
+BULHEIGHT = 10
+BULWIDTH = 5
+ENEMYBASESIZE = 30
+ENEMYKILLSCORE = 31 # Points for killing an enemy.
+ENEMYDAMAGE = 30
+PLAYERBULDELAY = 50 
+ENEMYBULDELAY = 400
 DEFSHIPSPEED = 6
-DEFBULSPEED = 10
+DEFBULSPEED = 8
+DEFBULCOLOR = WHITE
+ENEMYBULCOLOR = RED
+
+# Game HUD constants.
+HEALTHBARWIDTH = 150
+HEALTHBARHEIGHT = 20
+HEALTHBARCOLOR = GREEN
+EMPTYHEALTHBARCOLOR = RED
+HEALTHLOCATION = (10,WINHEIGHT - 30)
+DEFHEALTH = 150
+SCORESIZE = 30
+SCORECOLOR = BLUE
+SCORELOCATION = (20,20)
+
 
 # Game engine constants.
-FPS = 60
-SLOWFACTOR = 3
+MAXFPS = 60
+SLOWFACTOR = 3 # Changes how much time is slowed by.
+# Adjusts how quickly enemies home in on a position when behavior is set to "home".
+HOMINGFACTOR = 20
 
-# Creates random colors.
+# Creates random colors. No really practical use.
 def random_color():
     return (randint(0,255),randint(0,255),randint(0,255))

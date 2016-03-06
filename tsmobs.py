@@ -4,14 +4,17 @@ from tsconst import *
 import pygame
 
 class MobGroup(pygame.sprite.Group):
+    """Meant to hold all mobs in the game."""
     def __init__(self):
         super(MobGroup,self).__init__()
 
     def slow_down(self):
+        """Sets slow value to True for all mobs in group."""
         for sprite in self.sprites():
             sprite.slow = True
 
     def speed_up(self):
+        """Sets slow value to False for all mobs in group."""
         for sprite in self.sprites():
             sprite.slow = False
 
@@ -22,7 +25,7 @@ class Mob(pygame.sprite.DirtySprite):
     height = 0
     width = 0
     rect = None
-    color = WHITE
+    color = None
     slow = False
 
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
@@ -34,6 +37,8 @@ class Mob(pygame.sprite.DirtySprite):
         self.dirty = 2 # All mobs update
 
     def update(self):
+        """Adjusts coordinates according to move(),
+        then readjusts rect coordinates."""
         self.move()
         self.rect = pygame.Rect((self.xpos,self.ypos,
                                  self.width,self.height))
@@ -50,13 +55,15 @@ class Mob(pygame.sprite.DirtySprite):
             self.ypos += self.yvel * -1
 
     def sketch(self):
+        """Sets image attribute to a Surface so Group.draw()
+        can be called. Also used when recoloring a mob."""
         # Needs to be called during children __init__ to fill
-        # image attribute of sprite.
+        # image attribute of sprite for initial Group.draw() call.
         self.image = pygame.Surface((self.width,self.height))
         self.image.fill(self.color)
 
     def in_bounds(self,area,bound):
-        """Checks if Mob is inside area (Rect)"""
+        """Checks if Mob is inside a given area."""
         if bound == "all":
             return self.rect.colliderect(area)
         elif bound == "left":
@@ -77,15 +84,17 @@ class Ship(Mob):
     """Class for the player ship."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(Ship,self).__init__(xpos,ypos,xvel,yvel)
-        self.width = 30
-        self.height = 40
+        self.width = SHIPWIDTH
+        self.height = SHIPHEIGHT
         self.color = WHITE
         self.sketch()
-        self.defspeed = 8
+        self.defspeed = DEFSHIPSPEED
         self.ticks = pygame.time.get_ticks()
-        self.shootdelay = 50
+        self.shootdelay = PLAYERBULDELAY
 
     def move(self):
+        """Overriden from Mob to make Ship not slowed down by
+        slow attribute."""
         self.xpos += self.xvel
         self.ypos += self.yvel * -1
 
@@ -114,11 +123,14 @@ class Ship(Mob):
             self.xvel = 0
 
     def check_weapons(self,keystate):
+        """Calls fire_bullet() if space is held."""
         if keystate[pygame.K_SPACE]:
             fire = self.fire_bullet()
             return fire # Heh.
 
     def fire_bullet(self):
+        """Creates a Bullet object traveling upward if delay
+        requirements are met."""
         now = pygame.time.get_ticks()
         if now - self.ticks > self.shootdelay:
             self.ticks = pygame.time.get_ticks()
@@ -126,21 +138,41 @@ class Ship(Mob):
                           self.rect.center[1])
             fire.yvel = fire.defspeed
             return fire
+
+    def take_hit(self,healthbar,damage):
+        healthbar.decrement_health(damage)
+        
+    def check_health(self,healthbar):
+        if healthbar.health <= 0:
+            return True
+        
         
 class Enemy(Mob):
     """Base class for all enemies."""
-    def __init__(self,behavior="stop"):
+    def __init__(self,xpos,ypos,xvel=0,yvel=0,behavior="stop"):
         super(Enemy,self).__init__(xpos,ypos,xvel,yvel)
         self.behavior = behavior
-        self.width = 30
-        self.height = 30
-        self.color = WHITE
-        self.sketch()
+        self.basesize = ENEMYBASESIZE
+        self.shootdelay = ENEMYBULDELAY
+        self.target = None
+        self.ticks = pygame.time.get_ticks()
 
-    def ai_accel(self,script):
-        if script != self.behavior:
-            self.behavior = script
+    def fire_bullet(self):
+        """Fires bullet, but colors it red."""
+        now = pygame.time.get_ticks()
+        if now - self.ticks > self.shootdelay:
+            self.ticks = pygame.time.get_ticks()
+            fire = Bullet(self.rect.center[0],
+                          self.rect.center[1])
+            fire.enemy = True
+            fire.color = ENEMYBULCOLOR
+            fire.yvel = -1 * fire.defspeed
+            fire.sketch()
+            return fire
 
+    def ai_accel(self):
+        """Adjusts velocity attributes according to behavior
+        attributes and default speed values."""
         if self.behavior == "stop":
             self.xvel = 0
             self.yvel = 0
@@ -159,22 +191,47 @@ class Enemy(Mob):
         elif self.behavior == "straightright":
             self.xvel = self.defspeed
             self.yvel = 0
-
+        elif self.behavior == "diagdl":
+            # Diagonal, down and to the left at a 45 degree angle.
+            self.xvel = -1 * self.defspeed
+            self.yvel = -1 * self.defspeed
+        elif self.behavior == "diagdr":
+            # Diagonal, down and to the right at a 45 degree angle.
+            self.xvel = self.defspeed
+            self.yvel = -1 * self.defspeed
+        elif self.behavior == "random":
+            # Random movement.
+            # note - enemies tend to move down-left
+            # when slow is true for some reason.
+            margin = 3 # Changes how random movement is.
+            self.xvel = randint(margin * -1,margin)
+            self.yvel = randint(margin * -1,margin)
+        elif self.behavior == "home":
+            # Adjusts velocities to aim at a point.
+            distx = self.target[0] - self.rect.center[0]
+            disty = self.target[1] - self.rect.center[1]
+            if distx == 0:
+                distx += 1
+            if disty == 0:
+                disty += 1
+            self.xvel = (distx / self.defspeed) / HOMINGFACTOR
+            self.yvel = (( -1 * disty) / self.defspeed) / HOMINGFACTOR
 class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(Bullet,self).__init__(xpos,ypos,xvel,yvel)
-        self.width = 5
-        self.height = 10
-        self.color = WHITE
+        self.width = BULWIDTH
+        self.height = BULHEIGHT
+        self.color = DEFBULCOLOR
         self.sketch()
-        self.defspeed = 8
-                
-    def fire(self):
-        self.yvel = self.defspeed
-
+        self.defspeed = DEFBULSPEED
+        self.enemy = None
+    
 class SquareEnemy(Enemy):
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
         super(SquareEnemy,self).__init__(xpos,ypos,xvel,yvel)
         self.color = GREEN
+        self.width = self.basesize
+        self.height = self.basesize
         self.sketch()
+        self.defspeed = 3
