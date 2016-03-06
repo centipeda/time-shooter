@@ -64,8 +64,7 @@ def main():
                 sys.exit()
 
         # Update HUD elements
-        if keystate[pygame.K_e]:
-            scoreCounter.increment(1)
+        
 
 
         # Slow down time if either shift key is held
@@ -76,6 +75,8 @@ def main():
             
 
         # Ship controls
+        if playerShip.check_health(healthBar):
+            playerShip.kill()
         playerShip.check_controls(keystate,WINAREA)
         blasted = playerShip.check_weapons(keystate)
         # Fires bullet if space is held
@@ -105,7 +106,7 @@ def main():
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
             # Periodically fires bullets.
-            checkwep = None # enemy.fire_bullet()
+            checkwep = enemy.fire_bullet()
             if checkwep is not None:
                 checkwep.update()
                 checkwep.add(allMobs)
@@ -128,8 +129,9 @@ def main():
             if bullet.enemy:
                 if playerShip.rect.colliderect(bullet.rect):
                     to_update.append(SCREEN.fill(BGCOLOR,playerShip.rect))
-                    playerShip.kill()
-                    break
+                    # reminder - make damage a class attribute
+                    playerShip.take_hit(healthBar,ENEMYDAMAGE)
+                    bullet.kill()
 
         # Dirty rect animation
         for mob in allMobs.sprites():

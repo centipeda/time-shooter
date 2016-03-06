@@ -138,6 +138,14 @@ class Ship(Mob):
                           self.rect.center[1])
             fire.yvel = fire.defspeed
             return fire
+
+    def take_hit(self,healthbar,damage):
+        healthbar.decrement_health(damage)
+        
+    def check_health(self,healthbar):
+        if healthbar.health <= 0:
+            return True
+        
         
 class Enemy(Mob):
     """Base class for all enemies."""

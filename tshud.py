@@ -33,17 +33,19 @@ class HealthBar(HudElement):
         self.ypos = HEALTHLOCATION[1]
         self.width = HEALTHBARWIDTH
         self.height = HEALTHBARHEIGHT
-        self.color = HEALTHBARCOLOR
-        self.emptycolor = EMPTYHEALTHCOLOR
+        self.color = EMPTYHEALTHBARCOLOR
+        self.fillcolor = HEALTHBARCOLOR
         self.health = DEFHEALTH
 
     def update(self):
+        """Draws health bar as empty, then fills in amount of health needed."""
         self.rect = pygame.Rect((self.xpos,self.ypos,
                                  self.width,self.height))
         self.image = pygame.Surface((self.width,self.height))
         self.image.fill(self.color)
-        # Add partial health damage.
-
+        filledarea = pygame.Rect((0,0,self.health,self.height))
+        self.image.fill(self.fillcolor,filledarea)
+        
     def increment_health(self,increase):
         """Increases health attribute. For readability."""
         self.health += increase
@@ -51,6 +53,7 @@ class HealthBar(HudElement):
     def decrement_health(self,decrease):
         """Decreases health attribute. For readability."""
         self.health -= decrease
+
 
 class ScoreCounter(HudElement):
     def __init__(self):
