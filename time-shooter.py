@@ -15,6 +15,7 @@ import pygame
 from tsconst import *
 from tsmobs import *
 from tshud import *
+from tsevents import *
 
 def main():
 
@@ -32,6 +33,9 @@ def main():
     enemies = MobGroup()
     bullets = MobGroup()
     hudparts = HudElementGroup()
+
+    # Mob spawner
+    mainSpawner = Spawner(0,0)
 
     # set up HUD
     scoreCounter = ScoreCounter()
@@ -68,7 +72,8 @@ def main():
 
 
         # Slow down time if either shift key is held
-        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
+        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]\ 
+        and playerShip.alive():
             allMobs.slow_down()
         else:
             allMobs.speed_up()
@@ -80,24 +85,25 @@ def main():
         playerShip.check_controls(keystate,WINAREA)
         blasted = playerShip.check_weapons(keystate)
         # Fires bullet if space is held
-        if blasted is not None:
+        if blasted is not None and playerShip.alive():
             blasted.update()
             blasted.add(bullets)
             blasted.add(allMobs)
 
 
-        # Testing (Spawns enemies if "q" is pressed)
-        if keystate[pygame.K_q]:
-            spawn = SquareEnemy(randint(0,WINWIDTH),20)# Spawns randomly placed enemies along the x-axis.
-            spawn.color = random_color()
-            spawn.sketch()
-            spawn.behavior = "stop"
-            spawn.target = playerShip.rect.center
-            spawn.update()
-            spawn.add(allMobs)
-            spawn.add(enemies)
-            one = False
+        # Testing (Spawns enemies if "e" is pressed)
+        if keystate[pygame.K_e]:(healthBar
+            o = randint(0,WINWIDTH)
+            oo = randint(0,WINWIDTH)
+            t = mainSpawner.spawn("SquareEnemy",random_color(),
+                                  xoffset=o,yoffset=oo,)
+            t.add(allMobs)
+            t.add(enemies)
 
+        # Testing (Respawns ship if "r" is pressed)
+        if keystate[pygame.K_r] and not playerShip.alive():
+            playerShip.add(allMobs)
+            healthBar.health = DEFHEALTH
 
         # Enemy actions
         for enemy in enemies:
@@ -129,7 +135,7 @@ def main():
             if bullet.enemy:
                 if playerShip.rect.colliderect(bullet.rect):
                     to_update.append(SCREEN.fill(BGCOLOR,playerShip.rect))
-                    # reminder - make damage a class attribute
+                     # reminder - make damage a class attribute
                     playerShip.take_hit(healthBar,ENEMYDAMAGE)
                     bullet.kill()
 

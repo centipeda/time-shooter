@@ -214,7 +214,7 @@ class Enemy(Mob):
                 distx += 1
             if disty == 0:
                 disty += 1
-            self.xvel = (distx / self.defspeed) / HOMINGFACTOR
+                self.xvel = (distx / self.defspeed) / HOMINGFACTOR
             self.yvel = (( -1 * disty) / self.defspeed) / HOMINGFACTOR
 class Bullet(Mob):
     """Base class for all bullets."""
