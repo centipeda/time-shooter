@@ -72,8 +72,7 @@ def main():
 
 
         # Slow down time if either shift key is held
-        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]\ 
-        and playerShip.alive():
+        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT] and playerShip.alive():
             allMobs.slow_down()
         else:
             allMobs.speed_up()
@@ -92,13 +91,19 @@ def main():
 
 
         # Testing (Spawns enemies if "e" is pressed)
-        if keystate[pygame.K_e]:(healthBar
+        if keystate[pygame.K_e]:
             o = randint(0,WINWIDTH)
             oo = randint(0,WINWIDTH)
             t = mainSpawner.spawn("SquareEnemy",random_color(),
                                   xoffset=o,yoffset=oo,)
             t.add(allMobs)
             t.add(enemies)
+        if keystate[pygame.K_f]:
+            line = mainSpawner.spawn_horiz_wall(50,5,100,"SquareEnemy",random_color())
+            for a in line:
+                a.add(allMobs)
+                a.add(enemies)
+                        
 
         # Testing (Respawns ship if "r" is pressed)
         if keystate[pygame.K_r] and not playerShip.alive():

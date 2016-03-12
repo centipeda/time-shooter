@@ -18,6 +18,7 @@ class MobGroup(pygame.sprite.Group):
         for sprite in self.sprites():
             sprite.slow = False
 
+
 class Mob(pygame.sprite.DirtySprite):
     """Base class for all mobile objects in time-shooter."""
     defspeed = 0
@@ -156,6 +157,7 @@ class Enemy(Mob):
         self.shootdelay = ENEMYBULDELAY
         self.target = None
         self.ticks = pygame.time.get_ticks()
+        self.update()
 
     def fire_bullet(self):
         """Fires bullet, but colors it red."""
@@ -216,6 +218,8 @@ class Enemy(Mob):
                 disty += 1
                 self.xvel = (distx / self.defspeed) / HOMINGFACTOR
             self.yvel = (( -1 * disty) / self.defspeed) / HOMINGFACTOR
+
+
 class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
@@ -226,6 +230,7 @@ class Bullet(Mob):
         self.sketch()
         self.defspeed = DEFBULSPEED
         self.enemy = None
+
     
 class SquareEnemy(Enemy):
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
