@@ -96,10 +96,12 @@ def main():
             oo = randint(0,WINWIDTH)
             t = mainSpawner.spawn("SquareEnemy",random_color(),
                                   xoffset=o,yoffset=oo,)
+            t.behavior =  "home"
+            t.target = playerShip.rect.center
             t.add(allMobs)
             t.add(enemies)
         if keystate[pygame.K_f]:
-            line = mainSpawner.spawn_horiz_wall(50,5,100,"SquareEnemy",random_color())
+            line = mainSpawner.spawn_horiz_wall(50,5,100,"SquareEnemy")
             for a in line:
                 a.add(allMobs)
                 a.add(enemies)
@@ -116,6 +118,7 @@ def main():
             # Retargets player if Enemy is set to homing.
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
+                # enemy.homingfactor = randint(1,100) # testing
             # Periodically fires bullets.
             checkwep = enemy.fire_bullet()
             if checkwep is not None:
@@ -159,7 +162,8 @@ def main():
             to_update.append(mob.rect)
 
         pygame.display.update(to_update)
-
+        SCREEN.fill(BGCOLOR)
+        
         # Keeps game at steady FPS
         fpsClock.tick(MAXFPS)
 
