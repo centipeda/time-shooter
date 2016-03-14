@@ -6,7 +6,7 @@ import tsmobs
 class Spawner:
     """Spawns series of mobs, centered around a point."""
 
-    defcolor = random_color()
+    defcolor = random_color() # For now.
     
     def __init__(self,xpos,ypos):
         self.xpos = xpos
@@ -56,4 +56,17 @@ class Spawner:
         pass
 
     def spawn_swline(self,center,gap,mobtype,color=defcolor):
+        """Spawns a line of enemies in a diagonal line, set to move diagonally southeast."""
         pass
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,8 +1,9 @@
 """A sh'mup written with Pygame, with a small twist."""
 
 # To-do:
-# Add enemies, basic behavior, weapons
-# Add HUD
+# Add weapons
+# Add scripted enemy events
+# Add sprites
 # Add backgrounds
 # Add sounds, music
 # Add splash screen, menu
@@ -61,15 +62,29 @@ def main():
 
         # Handling for events from the event queue
         for event in pygame.event.get():
-            if (event.type == pygame.QUIT) or \
-               (event.type == pygame.KEYDOWN and \
-                    event.key == pygame.K_ESCAPE):
+            if (event.type == pygame.QUIT):
                 pygame.quit()
                 sys.exit()
-
-        # Update HUD elements
-        
-
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                # Debug keys.
+                elif event.key == pygame.K_e:
+                    o = randint(0,WINWIDTH)
+                    oo = rangdint(0,WINWIDTH)
+                    t = mainSpawner.spawn("SquareEnemy",random_color(),
+                                          xoffset=o,yoffset=oo,)
+                    t.behavior =  "home"
+                    t.target = playerShip.rect.center
+                    t.add(allMobs)
+                    t.add(enemies)
+                elif event.key == pygame.K_f:
+                    line = mainSpawner.spawn_horiz_wall(50,5,100,"SquareEnemy")
+                    for a in line:
+                        a.add(allMobs)
+                        a.add(enemies)
+                    
 
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT] and playerShip.alive():
@@ -90,27 +105,11 @@ def main():
             blasted.add(allMobs)
 
 
-        # Testing (Spawns enemies if "e" is pressed)
-        if keystate[pygame.K_e]:
-            o = randint(0,WINWIDTH)
-            oo = randint(0,WINWIDTH)
-            t = mainSpawner.spawn("SquareEnemy",random_color(),
-                                  xoffset=o,yoffset=oo,)
-            t.behavior =  "home"
-            t.target = playerShip.rect.center
-            t.add(allMobs)
-            t.add(enemies)
-        if keystate[pygame.K_f]:
-            line = mainSpawner.spawn_horiz_wall(50,5,100,"SquareEnemy")
-            for a in line:
-                a.add(allMobs)
-                a.add(enemies)
-                        
-
         # Testing (Respawns ship if "r" is pressed)
         if keystate[pygame.K_r] and not playerShip.alive():
             playerShip.add(allMobs)
             healthBar.health = DEFHEALTH
+
 
         # Enemy actions
         for enemy in enemies:
@@ -125,7 +124,6 @@ def main():
                 checkwep.update()
                 checkwep.add(allMobs)
                 checkwep.add(bullets)
-            
 
 
         # Collision detection
@@ -147,6 +145,7 @@ def main():
                     playerShip.take_hit(healthBar,ENEMYDAMAGE)
                     bullet.kill()
 
+
         # Dirty rect animation
         for mob in allMobs.sprites():
             # kills mob if offscreen
@@ -160,7 +159,7 @@ def main():
         allMobs.draw(SCREEN)
         for mob in allMobs.sprites():
             to_update.append(mob.rect)
-
+            
         pygame.display.update(to_update)
         SCREEN.fill(BGCOLOR)
         
