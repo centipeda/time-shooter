@@ -3,8 +3,12 @@
 from tsconst import *
 import tsmobs
 
+import inspect
+import random
+
 class Spawner:
-    """Spawns series of mobs, centered around a point."""
+    """Spawns mobs, centered around a point.
+    You can decide their color, velocity, and type."""
 
     defcolor = random_color() # For now.
     
@@ -59,14 +63,31 @@ class Spawner:
         """Spawns a line of enemies in a diagonal line, set to move diagonally southeast."""
         pass
 
+class EventGenerator:
+    """Uses a Spawner to create waves of enemies."""
 
+    def __init__(self,spawner,waveReady=False):
+        self.spawner = spawner
+        self.waveReady = waveReady # Spawn enemies immediately if True.
 
-
-
-
-
-
-
-
-
-
+    def choose_sequence(self):
+        funcs = inspect.getmembers(Spawner)
+        # This'll break if another attribute is added to Spawner.
+        wavechoice = random.choice(funcs[4:])
+        return wavechoice
+        
+    def launch_wave(self):
+        wave = self.choose_sequence()
+        if wave[0] == 'spawn':
+            pass
+        elif wave[0] == 'spawn_homing_squad':
+            pass
+        elif wave[0] == 'spawn_horiz_wall':
+            pass
+        elif wave[0] == 'spawn_seline':
+            pass
+        elif wave[0] == 'spawn_swline':
+            pass
+        elif wave[1] == 'spawn_strafers':
+            pass
+    
