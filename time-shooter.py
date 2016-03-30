@@ -73,7 +73,7 @@ def main():
                     sys.exit()
                     
         if not playerShip.alive():
-            print scoreCounter.score
+            print "Final score: ",scoreCounter.score
             pygame.quit()
             sys.exit()
 
