@@ -38,6 +38,9 @@ def main():
     # Mob spawner
     mainSpawner = Spawner(0,0)
 
+    # Event starter
+    eventStarter = EventGenerator()
+
     # set up HUD
     scoreCounter = ScoreCounter()
     healthBar = HealthBar()
@@ -59,7 +62,6 @@ def main():
         to_update = []
         keystate = pygame.key.get_pressed()
 
-
         # Handling for events from the event queue
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -69,33 +71,26 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-                # Debug keys.
-                elif event.key == pygame.K_e:
-                    o = randint(0,WINWIDTH)
-                    oo = rangdint(0,WINWIDTH)
-                    t = mainSpawner.spawn("SquareEnemy",random_color(),
-                                          xoffset=o,yoffset=oo,)
-                    t.behavior =  "home"
-                    t.target = playerShip.rect.center
-                    t.add(allMobs)
-                    t.add(enemies)
-                elif event.key == pygame.K_f:
-                    line = mainSpawner.spawn_horiz_wall(50,5,100,"SquareEnemy")
-                    for a in line:
-                        a.add(allMobs)
-                        a.add(enemies)
                     
+        if not playerShip.alive():
+            print scoreCounter.score
+            pygame.quit()
+            sys.exit()
 
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT] and playerShip.alive():
             allMobs.slow_down()
+            slow = True
         else:
             allMobs.speed_up()
+            slow = False
             
 
         # Ship controls
-        if playerShip.check_health(healthBar):
+        if playerShip.check_dead(healthBar):
             playerShip.kill()
+        elif (healthBar.health < healthBar.maxhealth) and (not slow):
+            healthBar.health += 1
         playerShip.check_controls(keystate,WINAREA)
         blasted = playerShip.check_weapons(keystate)
         # Fires bullet if space is held
@@ -105,19 +100,24 @@ def main():
             blasted.add(allMobs)
 
 
-        # Testing (Respawns ship if "r" is pressed)
-        if keystate[pygame.K_r] and not playerShip.alive():
-            playerShip.add(allMobs)
-            healthBar.health = DEFHEALTH
-
+        # Spawns waves of enemies
+        if pygame.time.get_ticks() % WAVEDELAY == 0:
+            wave = eventStarter.launch_wave(mainSpawner)
+            if type(wave) == type([]):
+                for mob in wave:
+                    mob.add(allMobs)
+                    mob.add(enemies)
+            else:
+                wave.add(allMobs)
+                wave.add(enemies)
+        mainSpawner.defcolor = random_color()
 
         # Enemy actions
         for enemy in enemies:
-            enemy.ai_accel()
             # Retargets player if Enemy is set to homing.
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
-                # enemy.homingfactor = randint(1,100) # testing
+            enemy.ai_accel()
             # Periodically fires bullets.
             checkwep = enemy.fire_bullet()
             if checkwep is not None:

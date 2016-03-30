@@ -141,9 +141,9 @@ class Ship(Mob):
             return fire
 
     def take_hit(self,healthbar,damage):
-        healthbar.decrement_health(damage)
+        healthbar.health -= damage
         
-    def check_health(self,healthbar):
+    def check_dead(self,healthbar):
         if healthbar.health <= 0:
             return True
         
