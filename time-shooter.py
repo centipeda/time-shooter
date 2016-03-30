@@ -1,8 +1,9 @@
 """A sh'mup written with Pygame, with a small twist."""
 
 # To-do:
-# Add enemies, basic behavior, weapons
-# Add HUD
+# Add weapons
+# Add scripted enemy events
+# Add sprites
 # Add backgrounds
 # Add sounds, music
 # Add splash screen, menu
@@ -15,6 +16,7 @@ import pygame
 from tsconst import *
 from tsmobs import *
 from tshud import *
+from tsevents import *
 
 def main():
 
@@ -32,6 +34,12 @@ def main():
     enemies = MobGroup()
     bullets = MobGroup()
     hudparts = HudElementGroup()
+
+    # Mob spawner
+    mainSpawner = Spawner(0,0)
+
+    # Event starter
+    eventStarter = EventGenerator()
 
     # set up HUD
     scoreCounter = ScoreCounter()
@@ -54,64 +62,68 @@ def main():
         to_update = []
         keystate = pygame.key.get_pressed()
 
-
         # Handling for events from the event queue
         for event in pygame.event.get():
-            if (event.type == pygame.QUIT) or \
-               (event.type == pygame.KEYDOWN and \
-                    event.key == pygame.K_ESCAPE):
+            if (event.type == pygame.QUIT):
                 pygame.quit()
                 sys.exit()
-
-        # Update HUD elements
-        
-
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                    
+        if not playerShip.alive():
+            print "Final score: ",scoreCounter.score
+            pygame.quit()
+            sys.exit()
 
         # Slow down time if either shift key is held
-        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT]:
+        if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT] and playerShip.alive():
             allMobs.slow_down()
+            slow = True
         else:
             allMobs.speed_up()
+            slow = False
             
 
         # Ship controls
-        if playerShip.check_health(healthBar):
+        if playerShip.check_dead(healthBar):
             playerShip.kill()
+        elif (healthBar.health < healthBar.maxhealth) and (not slow):
+            healthBar.health += 1
         playerShip.check_controls(keystate,WINAREA)
         blasted = playerShip.check_weapons(keystate)
         # Fires bullet if space is held
-        if blasted is not None:
+        if blasted is not None and playerShip.alive():
             blasted.update()
             blasted.add(bullets)
             blasted.add(allMobs)
 
 
-        # Testing (Spawns enemies if "q" is pressed)
-        if keystate[pygame.K_q]:
-            spawn = SquareEnemy(randint(0,WINWIDTH),20)# Spawns randomly placed enemies along the x-axis.
-            spawn.color = random_color()
-            spawn.sketch()
-            spawn.behavior = "stop"
-            spawn.target = playerShip.rect.center
-            spawn.update()
-            spawn.add(allMobs)
-            spawn.add(enemies)
-            one = False
-
+        # Spawns waves of enemies
+        if pygame.time.get_ticks() % WAVEDELAY == 0:
+            wave = eventStarter.launch_wave(mainSpawner)
+            if type(wave) == type([]):
+                for mob in wave:
+                    mob.add(allMobs)
+                    mob.add(enemies)
+            else:
+                wave.add(allMobs)
+                wave.add(enemies)
+        mainSpawner.defcolor = random_color()
 
         # Enemy actions
         for enemy in enemies:
-            enemy.ai_accel()
             # Retargets player if Enemy is set to homing.
             if enemy.behavior == "home":
                 enemy.target = playerShip.rect.center
+            enemy.ai_accel()
             # Periodically fires bullets.
             checkwep = enemy.fire_bullet()
             if checkwep is not None:
                 checkwep.update()
                 checkwep.add(allMobs)
                 checkwep.add(bullets)
-            
 
 
         # Collision detection
@@ -129,9 +141,10 @@ def main():
             if bullet.enemy:
                 if playerShip.rect.colliderect(bullet.rect):
                     to_update.append(SCREEN.fill(BGCOLOR,playerShip.rect))
-                    # reminder - make damage a class attribute
+                     # reminder - make damage a class attribute
                     playerShip.take_hit(healthBar,ENEMYDAMAGE)
                     bullet.kill()
+
 
         # Dirty rect animation
         for mob in allMobs.sprites():
@@ -146,9 +159,10 @@ def main():
         allMobs.draw(SCREEN)
         for mob in allMobs.sprites():
             to_update.append(mob.rect)
-
+            
         pygame.display.update(to_update)
-
+        SCREEN.fill(BGCOLOR)
+        
         # Keeps game at steady FPS
         fpsClock.tick(MAXFPS)
 

@@ -27,6 +27,8 @@ class HudElement(pygame.sprite.DirtySprite):
 
 class HealthBar(HudElement):
     """Health bar, can be decreased and increased."""
+    maxhealth = DEFHEALTH
+
     def __init__(self):
         super(HealthBar,self).__init__()
         self.xpos = HEALTHLOCATION[0]
@@ -45,14 +47,6 @@ class HealthBar(HudElement):
         self.image.fill(self.color)
         filledarea = pygame.Rect((0,0,self.health,self.height))
         self.image.fill(self.fillcolor,filledarea)
-        
-    def increment_health(self,increase):
-        """Increases health attribute. For readability."""
-        self.health += increase
-        
-    def decrement_health(self,decrease):
-        """Decreases health attribute. For readability."""
-        self.health -= decrease
 
 
 class ScoreCounter(HudElement):

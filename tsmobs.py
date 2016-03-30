@@ -18,6 +18,7 @@ class MobGroup(pygame.sprite.Group):
         for sprite in self.sprites():
             sprite.slow = False
 
+
 class Mob(pygame.sprite.DirtySprite):
     """Base class for all mobile objects in time-shooter."""
     defspeed = 0
@@ -140,9 +141,9 @@ class Ship(Mob):
             return fire
 
     def take_hit(self,healthbar,damage):
-        healthbar.decrement_health(damage)
+        healthbar.health -= damage
         
-    def check_health(self,healthbar):
+    def check_dead(self,healthbar):
         if healthbar.health <= 0:
             return True
         
@@ -155,7 +156,9 @@ class Enemy(Mob):
         self.basesize = ENEMYBASESIZE
         self.shootdelay = ENEMYBULDELAY
         self.target = None
+        self.homingfactor = HOMINGFACTOR
         self.ticks = pygame.time.get_ticks()
+        self.update()
 
     def fire_bullet(self):
         """Fires bullet, but colors it red."""
@@ -191,11 +194,11 @@ class Enemy(Mob):
         elif self.behavior == "straightright":
             self.xvel = self.defspeed
             self.yvel = 0
-        elif self.behavior == "diagdl":
+        elif self.behavior == "diagsw":
             # Diagonal, down and to the left at a 45 degree angle.
             self.xvel = -1 * self.defspeed
             self.yvel = -1 * self.defspeed
-        elif self.behavior == "diagdr":
+        elif self.behavior == "diagse":
             # Diagonal, down and to the right at a 45 degree angle.
             self.xvel = self.defspeed
             self.yvel = -1 * self.defspeed
@@ -207,15 +210,17 @@ class Enemy(Mob):
             self.xvel = randint(margin * -1,margin)
             self.yvel = randint(margin * -1,margin)
         elif self.behavior == "home":
-            # Adjusts velocities to aim at a point.
+            # Adjusts velocities to make a beeline for a point.
             distx = self.target[0] - self.rect.center[0]
             disty = self.target[1] - self.rect.center[1]
             if distx == 0:
                 distx += 1
             if disty == 0:
                 disty += 1
-            self.xvel = (distx / self.defspeed) / HOMINGFACTOR
-            self.yvel = (( -1 * disty) / self.defspeed) / HOMINGFACTOR
+            self.xvel = (distx / self.defspeed) / self.homingfactor
+            self.yvel = (( -1 * disty) / self.defspeed) / self.homingfactor
+
+
 class Bullet(Mob):
     """Base class for all bullets."""
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
@@ -226,6 +231,7 @@ class Bullet(Mob):
         self.sketch()
         self.defspeed = DEFBULSPEED
         self.enemy = None
+
     
 class SquareEnemy(Enemy):
     def __init__(self,xpos,ypos,xvel=0,yvel=0):
