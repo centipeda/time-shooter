@@ -17,9 +17,7 @@ def main():
 
     setup_screen()
 
-    choice = start_menu()
-
-    if choice == "play":
+    if start_menu() == "play":
         setup_game()
         play_game()
     

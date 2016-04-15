@@ -1,5 +1,5 @@
+"""Contains game code."""
 
-<<<<<<< HEAD:time-shooter.py
 # To-do:
 # Add sprites
 # Add backgrounds
