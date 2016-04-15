@@ -196,8 +196,8 @@ class Enemy(Mob):
             self.yvel = 0
         elif self.behavior == "diagsw":
             # Diagonal, down and to the left at a 45 degree angle.
-            self.xvel = -1 * self.defspeed
-            self.yvel = -1 * self.defspeed
+            self.xvel = (-1 * self.defspeed) / 2
+            self.yvel = (-1 * self.defspeed) / 2
         elif self.behavior == "diagse":
             # Diagonal, down and to the right at a 45 degree angle.
             self.xvel = self.defspeed

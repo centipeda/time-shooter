@@ -21,11 +21,11 @@ SHIPWIDTH = 20
 BULHEIGHT = 10
 BULWIDTH = 5
 ENEMYBASESIZE = 30
-ENEMYKILLSCORE = 10 # Points for killing an enemy.
+ENEMYKILLSCORE = 10
 ENEMYDAMAGE = 100
-PLAYERBULDELAY = 150 
+PLAYERBULDELAY = 50
 ENEMYBULDELAY = 400
-DEFSHIPSPEED = 6
+DEFSHIPSPEED = 5
 DEFBULSPEED = 10
 DEFBULCOLOR = WHITE
 ENEMYBULCOLOR = RED
@@ -33,10 +33,10 @@ ENEMYBULCOLOR = RED
 # Game HUD constants.
 DEFHEALTH = 300
 HEALTHBARWIDTH = DEFHEALTH
-HEALTHBARHEIGHT = 20
+HEALTHBARHEIGHT = 10
 HEALTHBARCOLOR = GREEN
 EMPTYHEALTHBARCOLOR = RED
-HEALTHLOCATION = (10,WINHEIGHT - 30)
+HEALTHLOCATION = (50,WINHEIGHT - 30)
 SCORESIZE = 30
 SCORECOLOR = BLUE
 SCORELOCATION = (20,20)
@@ -47,7 +47,7 @@ MAXFPS = 60
 SLOWFACTOR = 3 # Changes how much time is slowed by.
 # Adjusts how quickly enemies home in on a position when behavior is set to "home".
 HOMINGFACTOR = 20
-WAVEDELAY = 50 # Manages delay between waves of enemies.
+WAVEDELAY = 60 # Manages delay between waves of enemies.
 
 # Creates random colors. No really practical use.
 def random_color():

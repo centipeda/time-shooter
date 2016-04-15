@@ -1,8 +1,6 @@
 """A sh'mup written with Pygame, with a small twist."""
 
 # To-do:
-# Add weapons
-# Add scripted enemy events
 # Add sprites
 # Add backgrounds
 # Add sounds, music
@@ -28,6 +26,9 @@ def main():
     SCREEN = pygame.display.set_mode((WINWIDTH,WINHEIGHT))
     pygame.display.set_caption('Time-Shooter')
     SCREEN.fill(BGCOLOR)
+
+    # timing
+    frame = 0
 
     # Groups for holding mobs
     allMobs = MobGroup()
@@ -101,7 +102,7 @@ def main():
 
 
         # Spawns waves of enemies
-        if pygame.time.get_ticks() % WAVEDELAY == 0:
+        if frame % WAVEDELAY == 0:
             wave = eventStarter.launch_wave(mainSpawner)
             if type(wave) == type([]):
                 for mob in wave:
@@ -160,10 +161,11 @@ def main():
         for mob in allMobs.sprites():
             to_update.append(mob.rect)
             
-        pygame.display.update(to_update)
+        pygame.display.update()#to_update)
         SCREEN.fill(BGCOLOR)
         
-        # Keeps game at steady FPS
+        frame += 1
+        # keep it at steady FPS
         fpsClock.tick(MAXFPS)
 
 
