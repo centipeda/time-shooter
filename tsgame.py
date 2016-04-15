@@ -1,5 +1,5 @@
-"""A sh'mup written with Pygame, with a small twist."""
 
+<<<<<<< HEAD:time-shooter.py
 # To-do:
 # Add sprites
 # Add backgrounds
@@ -16,19 +16,24 @@ from tsmobs import *
 from tshud import *
 from tsevents import *
 
-def main():
-
-    pygame.init()
-
-    fpsClock = pygame.time.Clock()
-
-    # set up screen
+def setup_screen():
+    global SCREEN
     SCREEN = pygame.display.set_mode((WINWIDTH,WINHEIGHT))
     pygame.display.set_caption('Time-Shooter')
     SCREEN.fill(BGCOLOR)
 
-    # timing
-    frame = 0
+def start_menu():
+    return "play" # For now.
+
+def setup_game():
+    # Set global game variables
+    global fpsClock
+    global allMobs,enemies,bullets,hudparts
+    global mainSpawner,eventStarter
+    global scoreCounter,healthBar
+    global playerShip
+
+    fpsClock = pygame.time.Clock()
 
     # Groups for holding mobs
     allMobs = MobGroup()
@@ -59,24 +64,25 @@ def main():
     allMobs.draw(SCREEN)
     pygame.display.update()
 
-    while True: # main event loop
+
+def play_game():
+    done = False
+    frame = 0
+    while not done: # main event loop
         to_update = []
         keystate = pygame.key.get_pressed()
 
         # Handling for events from the event queue
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
-                pygame.quit()
-                sys.exit()
+                done = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                    
+                    done = True
+        # Prints score to console on death            
         if not playerShip.alive():
             print "Final score: ",scoreCounter.score
-            pygame.quit()
-            sys.exit()
+            done = True
 
         # Slow down time if either shift key is held
         if keystate[pygame.K_LSHIFT] or keystate[pygame.K_RSHIFT] and playerShip.alive():
@@ -90,6 +96,7 @@ def main():
         # Ship controls
         if playerShip.check_dead(healthBar):
             playerShip.kill()
+        # Health only regens when time isn't slowed
         elif (healthBar.health < healthBar.maxhealth) and (not slow):
             healthBar.health += 1
         playerShip.check_controls(keystate,WINAREA)
@@ -168,6 +175,6 @@ def main():
         # keep it at steady FPS
         fpsClock.tick(MAXFPS)
 
-
-if __name__ == '__main__':
-    main()
+def nice_exit():
+    pygame.quit()
+    sys.exit()
