@@ -15,6 +15,7 @@ from tsconst import *
 from tsmobs import *
 from tshud import *
 from tsevents import *
+from tsmenu import *
 
 def setup_screen():
     global SCREEN
@@ -23,17 +24,31 @@ def setup_screen():
     SCREEN.fill(BGCOLOR)
 
 def start_menu():
-    return "play" # For now.
+    menu = StartMenu()
+    done = False
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    done = True
+        
+        menu.display_menu(SCREEN)
+        
+    return "play"
 
 def setup_game():
     # Set global game variables
-    global fpsClock
-    global allMobs,enemies,bullets,hudparts
-    global mainSpawner,eventStarter
-    global scoreCounter,healthBar
-    global playerShip
+    global fpsClock, pauseMenu
+    global allMobs,enemies,bullets,hudparts # mob groups
+    global mainSpawner,eventStarter # mob creators
+    global scoreCounter,healthBar # HUD
+    global playerShip # the player
 
     fpsClock = pygame.time.Clock()
+
+    pauseMenu = PauseMenu()
 
     # Groups for holding mobs
     allMobs = MobGroup()
@@ -67,6 +82,7 @@ def setup_game():
 
 def play_game():
     done = False
+    paused = False
     frame = 0
     while not done: # main event loop
         to_update = []
@@ -76,9 +92,15 @@ def play_game():
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 done = True
-            elif event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_ESCAPE:
                     done = True
+                elif event.key == pygame.K_p:
+                    # pauseMenu.pause_game(SCREEN) not implemented yet
+                    paused = not paused
+        if paused: # temporary pause function
+            continue
+
         # Prints score to console on death            
         if not playerShip.alive():
             print "Final score: ",scoreCounter.score
@@ -172,6 +194,9 @@ def play_game():
         SCREEN.fill(BGCOLOR)
         
         frame += 1
+        # probably unneeded
+        if frame >= 999999999999999:
+            frame = 0
         # keep it at steady FPS
         fpsClock.tick(MAXFPS)
 
